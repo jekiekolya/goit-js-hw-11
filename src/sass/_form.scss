@@ -3,7 +3,7 @@
   justify-content: center;
   align-items: center;
 
-  height: 30px;
+  height: 50px;
 
   background-color: #3350d1;
 
@@ -13,9 +13,10 @@
   }
 
   & input {
-    height: 22px;
-    padding: 3px 5px;
-    padding-right: 25px;
+    width: 500px;
+    height: 40px;
+    padding: 5px 8px;
+    padding-right: 45px;
     border: none;
     border-radius: 5px;
     &:focus-within {
@@ -28,14 +29,14 @@
     position: absolute;
     top: 2px;
     right: 5px;
-    width: 20px;
-    height: 20px;
+    width: 36px;
+    height: 36px;
 
     cursor: pointer;
 
     background-color: #ffffff;
     background-image: url(../images/search.png);
-    background-size: 10px 10px;
+    background-size: 30px 30px;
     background-repeat: no-repeat;
     background-position: center;
     border: none;
