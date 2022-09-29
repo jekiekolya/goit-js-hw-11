@@ -1,4 +1,6 @@
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 import fetchPhoto from './featchPhoto';
 
 // Getting ref
@@ -29,7 +31,7 @@ async function onFormSubmit(e) {
     hideElement(ref.buttonLoadMore);
     return;
   }
-  //
+
   showElement(ref.boxLayout);
 
   try {
@@ -49,7 +51,6 @@ async function onFormSubmit(e) {
 
     createNotifySuccess(response);
     createMarkupGallery(photoArray);
-
     switchVisibilityButton(photoArray);
   } catch (error) {
     console.log(error);
@@ -71,7 +72,8 @@ function createMarkupGallery(photoArray) {
       }) => {
         return `
       <div class="photo-card">
-  <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+      <a href="${largeImageURL}">
+  <img src="${webformatURL}" alt="Tag: ${tags}" loading="lazy" />
   <div class="info">
     <p class="info-item">
       <b>Likes</b>
@@ -90,6 +92,7 @@ function createMarkupGallery(photoArray) {
       <span>${downloads}</span>
     </p>
   </div>
+  </a>
 </div>
           `;
       }
@@ -97,6 +100,7 @@ function createMarkupGallery(photoArray) {
     .join('');
 
   ref.boxLayout.insertAdjacentHTML('beforeend', stringMarkupGallery);
+  lightbox.refresh();
 }
 
 function createNotifyFailure() {
@@ -151,3 +155,19 @@ async function onButtonClick(e) {
     createNotifyFailureRequest(error);
   }
 }
+
+// Animation for open photo
+ref.boxLayout.addEventListener('click', onClick);
+
+function onClick(event) {
+  event.preventDefault();
+
+  if (event.target.nodeName !== 'IMG') {
+    return;
+  }
+}
+
+var lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
