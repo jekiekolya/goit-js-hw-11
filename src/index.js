@@ -129,7 +129,6 @@ function showElement(elem) {
 }
 
 function hideElement(elem) {
-  console.log(elem);
   elem.classList.add('visually-hidden');
 }
 
