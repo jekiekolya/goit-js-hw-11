@@ -8,27 +8,32 @@ const ref = {
   form: document.querySelector('.search-form'),
   boxLayout: document.querySelector('.gallery'),
   buttonLoadMore: document.querySelector('.load-more'),
+  loader: document.querySelector('#loader'),
+  emptylist: document.querySelector('.empty-list'),
 };
 
 // Variables
 let numberPage;
 let searchValue;
 let per_page = 40;
+let isFetching = false;
 
 // Add event listener on submit form for search images
 ref.form.addEventListener('submit', onFormSubmit);
-ref.buttonLoadMore.addEventListener('click', onButtonClick);
+ref.buttonLoadMore.addEventListener('click', onLoadMoreClick);
 
 async function onFormSubmit(e) {
   e.preventDefault();
   ref.boxLayout.innerHTML = '';
   hideElement(ref.buttonLoadMore);
+  hideElement(ref.emptylist);
   searchValue = e.target.elements.searchQuery.value;
   numberPage = 1;
 
   if (searchValue === '') {
     Notify.failure('Hey, put something!');
-    hideElement(ref.buttonLoadMore);
+    // hideElement(ref.buttonLoadMore);
+    hideElement(ref.loader);
     return;
   }
 
@@ -51,7 +56,8 @@ async function onFormSubmit(e) {
 
     createNotifySuccess(response);
     createMarkupGallery(photoArray);
-    switchVisibilityButton(photoArray);
+    switchVisibilityFinishElement(photoArray);
+    isFetching = false;
   } catch (error) {
     console.log(error);
     createNotifyFailureRequest(error);
@@ -101,7 +107,7 @@ function createMarkupGallery(photoArray) {
 
   ref.boxLayout.insertAdjacentHTML('beforeend', stringMarkupGallery);
   lightbox.refresh();
-  scrollSmooth();
+  // scrollSmooth();
 }
 
 function createNotifyFailure() {
@@ -126,16 +132,22 @@ function hideElement(elem) {
   elem.classList.add('visually-hidden');
 }
 
-function switchVisibilityButton(photoArray) {
+function switchVisibilityFinishElement(photoArray) {
   if (photoArray.length % per_page === 0) {
     showElement(ref.buttonLoadMore);
   } else {
     hideElement(ref.buttonLoadMore);
+    isFetching = true;
+    hideElement(ref.loader);
+    showElement(ref.emptylist);
   }
 }
 
-// Load more photo after click button
-async function onButtonClick(e) {
+// Load more photo after click button and infinity scroll
+
+async function onLoadMoreClick(e) {
+  isFetching = true;
+  showElement(ref.loader);
   try {
     const response = await fetchPhoto(searchValue, numberPage);
 
@@ -147,11 +159,14 @@ async function onButtonClick(e) {
 
     const photoArray = await response.data.hits;
 
-    if (photoArray.length % per_page !== 0) {
-      hideElement(ref.buttonLoadMore);
-    }
-
     createMarkupGallery(photoArray);
+    if (photoArray.length % per_page !== 0) {
+      // hideElement(ref.buttonLoadMore);
+      hideElement(ref.loader);
+      showElement(ref.emptylist);
+      return;
+    }
+    isFetching = false;
   } catch (error) {
     createNotifyFailureRequest(error);
   }
@@ -174,13 +189,25 @@ var lightbox = new SimpleLightbox('.gallery a', {
 });
 
 // Scroll smooth
-function scrollSmooth() {
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
+// function scrollSmooth() {
+//   const { height: cardHeight } = document
+//     .querySelector('.gallery')
+//     .firstElementChild.getBoundingClientRect();
 
-  window.scrollBy({
-    top: cardHeight * 10 + 100,
-    behavior: 'smooth',
-  });
-}
+//   window.scrollBy({
+//     top: cardHeight * 10 + 100,
+//     behavior: 'smooth',
+//   });
+// }
+
+// Infinite scroll
+window.addEventListener('scroll', async () => {
+  // Do not run if currently fetching
+
+  if (isFetching) return;
+
+  // Scrolled to bottom
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+    await onLoadMoreClick();
+  }
+});
