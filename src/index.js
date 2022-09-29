@@ -29,6 +29,7 @@ async function onFormSubmit(e) {
   hideElement(ref.emptyList);
   searchValue = e.target.elements.searchQuery.value;
   numberPage = 1;
+  isFetching = false;
 
   if (searchValue === '') {
     Notify.failure('Hey, put something!');
@@ -57,7 +58,6 @@ async function onFormSubmit(e) {
     createNotifySuccess(response);
     createMarkupGallery(photoArray);
     switchVisibilityFinishElement(photoArray);
-    isFetching = false;
   } catch (error) {
     console.log(error);
     createNotifyFailureRequest(error);
@@ -134,12 +134,12 @@ function hideElement(elem) {
 
 function switchVisibilityFinishElement(photoArray) {
   if (photoArray.length % per_page === 0) {
-    showElement(ref.buttonLoadMore);
+    // showElement(ref.buttonLoadMore);
   } else {
     hideElement(ref.buttonLoadMore);
-    isFetching = true;
     hideElement(ref.loader);
     showElement(ref.emptyList);
+    isFetching = true;
   }
 }
 
