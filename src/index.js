@@ -101,6 +101,7 @@ function createMarkupGallery(photoArray) {
 
   ref.boxLayout.insertAdjacentHTML('beforeend', stringMarkupGallery);
   lightbox.refresh();
+  scrollSmooth();
 }
 
 function createNotifyFailure() {
@@ -171,3 +172,15 @@ var lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
+
+// Scroll smooth
+function scrollSmooth() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 10 + 100,
+    behavior: 'smooth',
+  });
+}
