@@ -8,8 +8,8 @@ const ref = {
   form: document.querySelector('.search-form'),
   boxLayout: document.querySelector('.gallery'),
   buttonLoadMore: document.querySelector('.load-more'),
-  loader: document.querySelector('#loader'),
-  emptylist: document.querySelector('.empty-list'),
+  loader: document.querySelector('.loader'),
+  emptyList: document.querySelector('.empty-list'),
 };
 
 // Variables
@@ -20,13 +20,13 @@ let isFetching = false;
 
 // Add event listener on submit form for search images
 ref.form.addEventListener('submit', onFormSubmit);
-ref.buttonLoadMore.addEventListener('click', onLoadMoreClick);
+// ref.buttonLoadMore.addEventListener('click', onLoadMoreClick);
 
 async function onFormSubmit(e) {
   e.preventDefault();
   ref.boxLayout.innerHTML = '';
   hideElement(ref.buttonLoadMore);
-  hideElement(ref.emptylist);
+  hideElement(ref.emptyList);
   searchValue = e.target.elements.searchQuery.value;
   numberPage = 1;
 
@@ -129,6 +129,7 @@ function showElement(elem) {
 }
 
 function hideElement(elem) {
+  console.log(elem);
   elem.classList.add('visually-hidden');
 }
 
@@ -139,7 +140,7 @@ function switchVisibilityFinishElement(photoArray) {
     hideElement(ref.buttonLoadMore);
     isFetching = true;
     hideElement(ref.loader);
-    showElement(ref.emptylist);
+    showElement(ref.emptyList);
   }
 }
 
@@ -163,7 +164,7 @@ async function onLoadMoreClick(e) {
     if (photoArray.length % per_page !== 0) {
       // hideElement(ref.buttonLoadMore);
       hideElement(ref.loader);
-      showElement(ref.emptylist);
+      showElement(ref.emptyList);
       return;
     }
     isFetching = false;
