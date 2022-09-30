@@ -7,7 +7,7 @@ import fetchPhoto from './featchPhoto';
 const ref = {
   form: document.querySelector('.search-form'),
   boxLayout: document.querySelector('.gallery'),
-  loader: document.querySelector('.loader'),
+  buttonLoadMore: document.querySelector('.load-more'),
   emptyList: document.querySelector('.empty-list'),
 };
 
@@ -15,9 +15,10 @@ const ref = {
 let numberPage;
 let searchValue;
 let per_page = 40;
-let isFetching = false;
 
+// Add event listener on submit form for search images
 ref.form.addEventListener('submit', onFormSubmit);
+ref.buttonLoadMore.addEventListener('click', onLoadMoreClick);
 
 async function onFormSubmit(e) {
   e.preventDefault();
@@ -29,7 +30,7 @@ async function onFormSubmit(e) {
 
   if (searchValue === '') {
     Notify.failure('Hey, put something!');
-    hideElement(ref.loader);
+    hideElement(ref.buttonLoadMore);
     return;
   }
 
@@ -102,6 +103,7 @@ function createMarkupGallery(photoArray) {
 
   ref.boxLayout.insertAdjacentHTML('beforeend', stringMarkupGallery);
   lightbox.refresh();
+  scrollSmooth();
 }
 
 function createNotifyFailure() {
@@ -127,8 +129,10 @@ function hideElement(elem) {
 }
 
 function switchVisibilityFinishElement(photoArray) {
-  if (photoArray.length % per_page !== 0) {
-    hideElement(ref.loader);
+  if (photoArray.length % per_page === 0) {
+    showElement(ref.buttonLoadMore);
+  } else {
+    hideElement(ref.buttonLoadMore);
     showElement(ref.emptyList);
     isFetching = true;
   }
@@ -138,7 +142,6 @@ function switchVisibilityFinishElement(photoArray) {
 
 async function onLoadMoreClick(e) {
   isFetching = true;
-  showElement(ref.loader);
   try {
     const response = await fetchPhoto(searchValue, numberPage);
 
@@ -152,7 +155,7 @@ async function onLoadMoreClick(e) {
 
     createMarkupGallery(photoArray);
     if (photoArray.length % per_page !== 0) {
-      hideElement(ref.loader);
+      hideElement(ref.buttonLoadMore);
       showElement(ref.emptyList);
       return;
     }
@@ -178,14 +181,14 @@ var lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
-// Infinite scroll
-window.addEventListener('scroll', async () => {
-  // Do not run if currently fetching
+// Scroll smooth
+function scrollSmooth() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
 
-  if (isFetching) return;
-
-  // Scrolled to bottom
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-    await onLoadMoreClick();
-  }
-});
+  window.scrollBy({
+    top: cardHeight * 10 + 100,
+    behavior: 'smooth',
+  });
+}
